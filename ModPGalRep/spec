@@ -1,5 +1,6 @@
 {
 	creation.m
-	conductor.m
+	invariants.m
 	frobenius.m
+	arithmetic.m
 }

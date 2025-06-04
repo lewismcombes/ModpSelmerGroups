@@ -8,8 +8,7 @@ intrinsic FrobeniusElement(L::FldNum,P::RngOrdIdl) -> GrpPermElt
 	ZL:=MaximalOrder(L);
 	ZK:=MaximalOrder(BaseField(L));
 
-	// this was behaving weirdly but we do need it! why aren't number fields equal?
-	//require NumberField(Order(P)) eq L or NumberField(Order(P)) eq BaseField(L): "Ideal must be of L or its base field";
+	require NumberField(Order(P)) eq L or NumberField(Order(P)) eq BaseField(L): "Ideal must be of L or its base field";
 
 	// in this case, the Frobenius is determined exactly by the ideal 
 	if P in Parent(1*MaximalOrder(L)) then 
@@ -22,7 +21,6 @@ intrinsic FrobeniusElement(L::FldNum,P::RngOrdIdl) -> GrpPermElt
 		pow:=Norm(P);
 		require not IsRamified(P,ZL): "Field cannot be ramified at prime"; 
 	end if;
-
 
 
 	F,down:=ResidueClassField(PP);
@@ -47,6 +45,8 @@ intrinsic FrobeniusElement(L::FldNum,P::RngOrdIdl) -> GrpPermElt
 			return g;
 		end if;
 	end for;
+
+	error "No Frobenius automorphism found";
 
 end intrinsic;
 
