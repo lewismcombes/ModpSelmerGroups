@@ -8,27 +8,60 @@ intrinsic Filtration(rho::ModPGalRep,H::GrpPerm) -> SeqEnum
 end intrinsic;
 
 
+intrinsic IsFaithful(rho::ModPGalRep) -> BoolElt 
+	{Returns whether the mod p Galois representation rho is faithful}
+	return not &or [rho`representation(g) eq 1 : g in rho`domain | g ne Id(rho`domain)];
+end intrinsic;
+
+
+
+
+// returns all the one-dimensional subspaces of V
+OneDimensionalSubspaces := function(V)
+	all := [];
+	for v in V do 
+		S := sub<V|v>;
+		if not S in all and v ne 0 then 
+			Append(~all,S);
+		end if;
+	end for;
+	return all;
+end function;
+
+
+
 
 intrinsic IsNearlyOrdinary(rho::ModPGalRep) -> BoolElt
 	{Decides whether rho restricted to decomposition fixes a 1-dimensional subspace. Can only be applied to 2-dimensional representations.}
 
 	require rho`dim eq 2: "Only defined for 2-dimensional representations";
 
+	if assigned rho`is_nearly_ordinary then 
+		return &and rho`is_nearly_ordinary;
+	end if;
 
 	decomps:=[];
 	fixed_by_decomp:=[];
 	is_NO:=[];
 
+	V := RSpace(GF(rho`finite_field_order),rho`dim);
+
 	for PP in rho`primes_over_char_image do 
 
+		fixed_lines := [];
 		decomp := DecompositionGroup(PP[1]);
 		Append(~decomps,decomp);
 
-		kernels := [Kernel(rho(g) - 1) : g in decomp];
-		fixed := &meet kernels;
-		
-		Append(~fixed_by_decomp, fixed);
-		Append(~is_NO, Dimension(fixed) ge 1);
+		subs := OneDimensionalSubspaces(V);
+
+		for u in subs do 
+			if &and [u*rho`representation(g) eq u : g in decomp] then
+				Append(~fixed_lines, u);
+			end if;
+		end for;
+
+		Append(~is_NO, #fixed_lines gt 0);
+		Append(~fixed_by_decomp, fixed_lines);
 
 	end for;
 
@@ -42,9 +75,7 @@ end intrinsic;
 
 
 
-
-
-OneDimensionalSubspaces:=function(rho)
+OneDimensionalSubspacesRho:=function(rho)
 
 	if not assigned rho`fixed_by_decomp then 
 		is_NO:=IsNearlyOrdinary(rho);

@@ -36,8 +36,13 @@ intrinsic SelmerData(rho::ModPGalRep) -> ModPSelData
 	real_inf := [1..#RealPlaces(rho`image_field_abs)];
 	sel`real_inf := real_inf;
 	R, m := RayClassGroup(modulus,real_inf);
-	mm := MaximalPExtensionHom(R,m,rho`char);
-	A := RayClassField(mm);
+	mm := MaximalPExtensionHom(R, m, rho`char);
+	AA := RayClassField(mm);
+
+	// we try to bring the modulus down, to save time on future calculations inside the ray class field 
+	cond := Conductor(AA);
+	R, m := RayClassGroup(cond, real_inf);
+	A := RayClassField(MaximalPExtensionHom(R, m, rho`char));
 
 	sel`maximal_p_extension := A;
 	NSF, act, aut, transfer := NormalSubfields_K(A, [rho`char : i in [1..rho`finite_field_degree * rho`dim]], rho`base_field);
@@ -78,5 +83,4 @@ intrinsic SelmerData(rho::ModPGalRep) -> ModPSelData
 
 	return sel;
 end intrinsic;
-
 

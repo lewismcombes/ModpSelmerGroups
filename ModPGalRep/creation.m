@@ -9,12 +9,11 @@
 
 declare type ModPGalRep;
 
-
 declare attributes ModPGalRep:
-	base_field, image_field, image_order, image_field_abs, image_order_abs, dim, char, finite_field_order, finite_field_degree, field_order, field_order_gens, frobenius_elements, domain, field_autom_rep, module_field, 
-	representation, traces, ramification, conductor, primes_over_char, primes_over_char_image, primes_over_char_abs, decomps_over_char, fixed_by_decomp, is_nearly_ordinary;
-
-
+	base_field, image_field, image_order, image_field_abs, image_order_abs, dim, char, discriminant, finite_field_order, 
+	finite_field_degree, field_order, field_order_gens, frobenius_elements, domain, field_autom_rep, module_field, 
+	representation, traces, ramification, conductor, primes_over_char, primes_over_char_image, primes_over_char_abs, 
+	decomps_over_char, fixed_by_decomp, is_nearly_ordinary, possible_irreds;
 
 
 
@@ -33,8 +32,6 @@ end intrinsic;
 
 
 
-
-
 intrinsic ModPGaloisRepresentation(L::FldNum,q::RngIntElt,n::RngIntElt) -> ModPGalRep
 	{Returns a dimension n Galois representation over F_q with image Gal(L)}
 
@@ -45,10 +42,12 @@ intrinsic ModPGaloisRepresentation(L::FldNum,q::RngIntElt,n::RngIntElt) -> ModPG
 	rho := New(ModPGalRep);
 	F := GF(q);
 	p := Characteristic(F);
+	K := BaseField(L);
+
 	rho`finite_field_order := q;
 	rho`finite_field_degree := Valuation(q,p);
 	rho`dim := n;
-	rho`base_field := BaseField(L);
+	rho`base_field := K;
 	rho`image_field := L;
 	rho`module_field := F;
 	rho`char := p;
@@ -64,6 +63,8 @@ intrinsic ModPGaloisRepresentation(L::FldNum,q::RngIntElt,n::RngIntElt) -> ModPG
 	ZL := MaximalOrder(L);
 	rho`field_order := ZL;
 	rho`field_order_gens := [ZL!Eltseq(u) : u in Generators(Module(ZL))];
+	disc := Discriminant(ZL);
+	rho`discriminant := disc;
 
 	L_abs := AbsoluteField(L);
 	rho`image_field_abs := L_abs;
@@ -72,25 +73,34 @@ intrinsic ModPGaloisRepresentation(L::FldNum,q::RngIntElt,n::RngIntElt) -> ModPG
 
 	ZK := MaximalOrder(rho`base_field);
 	rho`frobenius_elements := AssociativeArray(Parent(1*ZK));
+	all_PP:= PrimesUpTo(50,K);
+	PP:=[v : v in all_PP | GCD(v,disc) eq 1*ZK];
+	for P in PP do 
+		rho`frobenius_elements[P] := FrobeniusElement(L,P);
+	end for;
+
 	primes_over_char := [u[1] : u in Factorization(p*ZK)];
 	rho`primes_over_char := primes_over_char;
 	rho`primes_over_char_image := [ [u[1] : u in Factorization(Parent(1*ZL)!P)] : P in primes_over_char ];
-	//rho`primes_over_char_abs := [ [u[1] : u in Factorization(Parent(1*Z_Labs)!P)] : P in primes_over_char ];
 	rho`primes_over_char_abs := [[ideal<ZL_abs | [ZL_abs!u : u in Generators(v)]> : v in rho`primes_over_char_image[j]] : j in [1..#rho`primes_over_char]];
 
-
-	// we'll need to do something with frobenius stuff to make sure we get the right representation 
-	// for now we'll just pick the first one 
-	rho`representation := Representation(irreds[1]);
-	rho`traces := [Trace((rho`representation)(g)) : g in A];
+	if #irreds gt 1 then 
+		print "Irreducible representation not uniquely defined.";
+		print "Traces of Frobenius and norms of prime ideals for each choice are below.";
+		for u in irreds do 
+			repp := Representation(u);
+			print [<Norm(v), Trace(repp(rho`frobenius_elements[v]))> : v in PP | GCD(v,disc) eq 1*ZK];
+			print "";
+		end for;
+		rho`possible_irreds := irreds;
+	else 
+		rho`representation := Representation(irreds[1]);
+		rho`traces := [Trace((rho`representation)(g)) : g in A];
+	end if;
 
 	return rho;
 
 end intrinsic;
-
-
-
-
 
 
 
@@ -102,6 +112,20 @@ intrinsic '@'(g::GrpPermElt,rho::ModPGalRep) -> AlgMatElt
 
 end intrinsic;
 
+
+
+intrinsic ChangeRepresentation(rho::ModPGalRep,i::RngIntElt)
+	{Changes the representation to one of its other irreducibles}
+
+	require i in [1..#rho`possible_irreds]: "Index should be in the range 1 to " cat Sprint(rho`possible_irreds);
+
+	rho`representation := Representation(rho`possible_irreds);
+	rho`traces := [Trace((rho`representation)(g)) : g in rho`domain];
+
+	delete rho`is_nearly_ordinary;
+	delete rho`fixed_by_decomp;
+
+end intrinsic;
 
 
 

@@ -1,10 +1,11 @@
 
 // from Cohen's Advanced Topics
 SelmerModulusExponent := function(rho,P)
-	r := rho`dim;
+	r := Valuation(rho`finite_field_order,rho`char) * rho`dim;
 	p := rho`char;
 	e := RamificationIndex(P,rho`char);
-	return Ceiling((r*p*e)/(p-1))+1;
+	//return 7;
+	return Floor((r*p*e)/(p-1))+1;
 end function;
 
 
@@ -113,8 +114,25 @@ OneDimensionalSubspaces := function(V)
 end function;
 
 
+// a little combinatorial utility function, gives all of the possible 
+// pairs of fixed lines (which each give their own selmer group)
+AllLineCombinations := function(fixed_spaces)
+	all_lines := [OneDimensionalSubspaces(u) : u in fixed_spaces];
+	combos:=[[]];
 
+	indices := [[1..#u] : u in all_lines];
 
+	for u in all_lines do
+		new_combos:=[];
+		for v in u do 
+			for w in combos do 
+				Append(~new_combos, w cat [v]);
+			end for;
+		end for;
+		combos := new_combos;
+	end for;
+	return combos;
+end function;
 
 
 

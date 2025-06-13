@@ -32,10 +32,21 @@ end intrinsic;
 intrinsic NearlyOrdinaryRank(sel::ModPSelData,lines::SeqEnum) -> RngIntElt
 	{Returns the rank of the nearly-ordinary Selmer group associated to the Selmer data sel}
 
+	rho:=sel`base_rep;
+
+	require IsNearlyOrdinary(rho): "Representation is not nearly-ordinary";
+
+	require #lines eq #rho`primes_over_char: "Exactly one fixed line per prime over the characteristic is required.";
+	// if the lines are given as vector spaces rather than vectors, we convert 
+	if Type(lines[1]) eq ModTupFld then 
+		require &and [Dimension(u) eq 1 : u in lines]: "Dimension of fixed space must be 1";
+		lines := [u.1 : u in lines];
+	end if;
+	require &and [lines[i] in &join rho`fixed_by_decomp[i] : i in [1..#lines] ] : "Lines must in a space fixed by the decomposition group at each prime.";
+
 	// to do: some requirements on the lines 
 	// also the rep should be nearly-ordinary 
 
-	rho:=sel`base_rep;
 
 	// if we haven't already got the fixed fields of inertia for each extension, we gather them now 
 	// this makes things quicker in situations such as, e.g., we have already computed the unramified rank 
@@ -43,7 +54,7 @@ intrinsic NearlyOrdinaryRank(sel::ModPSelData,lines::SeqEnum) -> RngIntElt
 		sel`normal_subfields_inertia_fixed := AllFixedFieldsOfInertia(sel);
 	end if;
 
-	lines_in_NO:=0;
+	lines_in_NO := 0;
 
 	for i in [1..#sel`normal_subfields] do 
 		extension_contributes:=true;
