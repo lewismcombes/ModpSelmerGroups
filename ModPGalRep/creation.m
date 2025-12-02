@@ -138,6 +138,3 @@ intrinsic ChangeRepresentation(rho::ModPGalRep,i::RngIntElt)
 
 end intrinsic;
 
-
-
-

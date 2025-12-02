@@ -46,10 +46,10 @@ InducedMap_K:=function(r1,r2,h,Coprime)
   */
 
   HEval:=function(h,I) // a bodge function that apparently needs to exist  -L
-    gens:=Generators(I);
-    R:=Order(I);
-    h_gens:=[h(g) : g in Generators(I)];
-    h_ideal:=ideal<R | h_gens>;
+    gens := Generators(I);
+    R := Order(I);
+    h_gens := [h(g) : g in Generators(I)];
+    h_ideal := ideal<R | h_gens>;
     return h_ideal;
   end function;
 
@@ -98,9 +98,9 @@ end function;
 CohomologyModule_K:=function(F,Sub,K)
 
 
-  FF:=NumberField(BaseField(F));
-  _:=IsSubfield(K,FF);
-  F2:=RelativeField(K,FF);
+  FF := NumberField(BaseField(F));
+  _ := IsSubfield(K,FF);
+  F2 := RelativeField(K,FF);
   g, _, p := AutomorphismGroup(F2); // this is Gal(F/K)
 
 
@@ -135,14 +135,14 @@ end function;
 
 GalMatsQuo:=function(Q,S,GalMats) // given GalMats acting on Q and a subgroup S, find the action on the space Q/S
 
-  Mats:=[];
-  Q1,down:=quo<Q|S>;
-  up:=Inverse(down);
-  p:=Exponent(Q);
+  Mats := [];
+  Q1,down := quo<Q|S>;
+  up := Inverse(down);
+  p := Exponent(Q);
 
   for gg in GalMats do
-    N:=Ngens(Q1);
-    vecs:=[down(VecToGroup(ChangeRing(Vector(ElementToSequence(up(Q1.i))),GF(p))*gg,Q)) : i in [1..N]];
+    N := Ngens(Q1);
+    vecs := [down(VecToGroup(ChangeRing(Vector(ElementToSequence(up(Q1.i))),GF(p))*gg,Q)) : i in [1..N]];
     Append(~Mats,Matrix(GF(p),N,N,[ElementToSequence(v) : v in vecs]));
   end for;
 
@@ -153,8 +153,8 @@ end function;
 
 
 NormalSubfields_K:=function(A,Quot,K)
-  All:=true;
-  Over:=false; //not sure about this! could be a problem. documentation doesn't say what these do  -L
+  All := true;
+  Over := false; 
   N := NormGroup(A);
 
   /*
@@ -168,9 +168,9 @@ NormalSubfields_K:=function(A,Quot,K)
   
   //g, _, mg := AutomorphismGroup(BaseField(A),K); 
 
-  LL:=NumberField(BaseField(A));
-  _:=IsSubfield(K,LL);
-  L:=RelativeField(K,LL);
+  LL := NumberField(BaseField(A));
+  _ := IsSubfield(K,LL);
+  L := RelativeField(K,LL);
   g, _, mg := AutomorphismGroup(L); // this is Gal(L/K)
 
 
@@ -191,46 +191,46 @@ NormalSubfields_K:=function(A,Quot,K)
 
   // this part gives us the action of Gal(L/K) on the ray class group Q
   // this is stored in the GalMats list -L
-  Q:=Domain(N);
+  Q := Domain(N);
   p:=Exponent(Q);
   G := Group(q1);
   a := [Q.i : i in [1..Ngens(Q)]];
   ChangeUniverse(~a, Domain(N));
   ChangeUniverse(~a, Domain(q3));
   b := [ChangeUniverse([ActionOnVector(q1, x@@q4, G.i)@q4 : x in a],Domain(N)) : i in [1..Ngens(G)]];
-  GalMats:=[Matrix(GF(p),[ElementToSequence(e) : e in u]) : u in b];
+  GalMats := [Matrix(GF(p),[ElementToSequence(e) : e in u]) : u in b];
 
-  QInv:=Invariants(Q);
+  QInv := Invariants(Q);
   //print "finding submodules of chosen size...";
-  GM:=GModule(g,MatrixAlgebra<GF(p),#QInv|GalMats>); // makes the Gal(L/K) module explicitly
-  LL:=Submodules(GM);
+  GM := GModule(g,MatrixAlgebra<GF(p),#QInv|GalMats>); // makes the Gal(L/K) module explicitly
+  LL := Submodules(GM);
 
   // we want all those submodules which leave Quot as the quotient
   // this particular method works for (Z/pZ)^n extensions
   // it will NOT work in general
   // but of course something similar could -L
-  k:=#QInv - #Quot;
+  k := #QInv - #Quot;
 
-  keeps:=[];
+  keeps := [];
   for u in LL do
     if Dimension(u) eq k then
       Append(~keeps,u);
     end if;
   end for;
 
-  gens:=[];
+  gens := [];
   for u in keeps do
     Append(~gens,[VecToGroup(GM!u.i,Q) : i in [1..k]]);
   end for;
 
-  subgroups:=[];
+  subgroups := [];
   for u in gens do
     Append(~subgroups,sub<Q|u>);
   end for;
 
 
   l := [AbelianSubfield(A, x:IsNormal, Over := Over) : x in subgroups];
-  actions:=[GalMatsQuo(Q,s,GalMats) : s in subgroups];
+  actions := [GalMatsQuo(Q,s,GalMats) : s in subgroups];
   return l,actions,g,mg,gens;
 end function;
 
@@ -253,7 +253,7 @@ GetAction:=function(F,K)
   mAA := Coercion(AA, Domain(A));
 
   //Autos:=[];
-  Mats:=[];
+  Mats := [];
 
   for i in [1..#g] do
      //Append(~Autos,InducedMap_K(mAA*A,mAA*A, p(g.i), mo));

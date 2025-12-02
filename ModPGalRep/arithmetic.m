@@ -1,18 +1,9 @@
 
 
-intrinsic Filtration(rho::ModPGalRep,H::GrpPerm) -> SeqEnum 
-	{Attempts to find filtrations on rho with respect to the group H}
-
-	// what should go here? :s
-
-end intrinsic;
-
-
 intrinsic IsFaithful(rho::ModPGalRep) -> BoolElt 
 	{Returns whether the mod p Galois representation rho is faithful}
 	return not &or [rho`representation(g) eq 1 : g in rho`domain | g ne Id(rho`domain)];
 end intrinsic;
-
 
 
 intrinsic IsUnramifiedOnQuotient(rho::ModPGalRep) -> BoolElt 
@@ -33,7 +24,7 @@ intrinsic IsUnramifiedOnQuotient(rho::ModPGalRep) -> BoolElt
 
 		for u in rho`fixed_by_decomp[i] do 
 			Q,down := quo<V | u>;
-			up:=Inverse(down);
+			up := Inverse(down);
 			Append(~lines_unram,&and [down(up(Q.1) * rho(g)) eq Q.1 : g in rho`inertias_over_char[i]]);
 		end for;
 
@@ -47,9 +38,6 @@ intrinsic IsUnramifiedOnQuotient(rho::ModPGalRep) -> BoolElt
 end intrinsic;
 
 
-
-
-
 // returns all the one-dimensional subspaces of V
 OneDimensionalSubspaces := function(V)
 	all := [];
@@ -61,8 +49,6 @@ OneDimensionalSubspaces := function(V)
 	end for;
 	return all;
 end function;
-
-
 
 
 intrinsic IsNearlyOrdinary(rho::ModPGalRep) -> BoolElt
@@ -108,11 +94,10 @@ intrinsic IsNearlyOrdinary(rho::ModPGalRep) -> BoolElt
 end intrinsic;
 
 
-
 OneDimensionalSubspacesRho:=function(rho)
 
 	if not assigned rho`fixed_by_decomp then 
-		is_NO:=IsNearlyOrdinary(rho);
+		is_NO := IsNearlyOrdinary(rho);
 	end if;
 
 	if not rho`is_nearly_ordinary then 
@@ -123,7 +108,7 @@ OneDimensionalSubspacesRho:=function(rho)
 	one_dim_subs := [];
 	fixed := rho`fixed_by_decomp;
 	for v in fixed do 
-		S:=sub<fixed | v>;
+		S := sub<fixed | v>;
 		if Dimension(S) eq 1 then 
 			if not S in one_dim_subs then 
 				Append(~one_dim_subs,S);
@@ -134,10 +119,5 @@ OneDimensionalSubspacesRho:=function(rho)
 	return one_dim_subs;
 
 end function;
-
-
-
-
-
 
 

@@ -5,33 +5,33 @@ intrinsic FrobeniusElement(L::FldNum,P::RngOrdIdl) -> GrpPermElt
 
 	require IsPrime(P): "Ideal must be prime";
 
-	ZL:=MaximalOrder(L);
-	ZK:=MaximalOrder(BaseField(L));
+	ZL := MaximalOrder(L);
+	ZK := MaximalOrder(BaseField(L));
 
 	require NumberField(Order(P)) eq L or NumberField(Order(P)) eq BaseField(L): "Ideal must be of L or its base field";
 
 	// in this case, the Frobenius is determined exactly by the ideal 
 	if P in Parent(1*MaximalOrder(L)) then 
-		PP:=P;
-		pow:=Norm(Norm(P));
+		PP := P;
+		pow := Norm(Norm(P));
 		require not IsRamified(P): "Field cannot be ramified at prime";
 	// in this case, the Frobenius is determined up to a choice of prime in L over P
 	else 
-		PP:=Factorization(Parent(1*ZL)!P)[1,1];
-		pow:=Norm(P);
+		PP := Factorization(Parent(1*ZL)!P)[1,1];
+		pow := Norm(P);
 		require not IsRamified(P,ZL): "Field cannot be ramified at prime"; 
 	end if;
 
 
-	F,down:=ResidueClassField(PP);
+	F,down := ResidueClassField(PP);
 
 	// a generating set for ZL as a ZK-module
-	gens:=[ZL!Eltseq(u) : u in Generators(Module(ZL))];
+	gens := [ZL!Eltseq(u) : u in Generators(Module(ZL))];
 
-	A,_,m:=AutomorphismGroup(L);
+	A,_,m := AutomorphismGroup(L);
 
 	// a little utility function for checking if we have a Frobenius
-	IsFrob:=function(g)
+	IsFrob := function(g)
 		for b in gens do 
 			if not down(m(g)(b)) eq down(b)^pow then 
 				return false;

@@ -13,7 +13,7 @@ intrinsic DecompositionGroup(P::RngOrdIdl) -> GrpPerm
 	end function;
 
 	// tells us if g fixes the ideal P 
-	FixesIdeal:=function(g)
+	FixesIdeal := function(g)
 		return P eq AutIdeal(GrpToNFAut(g),P);
 	end function;
 
@@ -44,7 +44,7 @@ intrinsic RamificationGroup(P::RngOrdIdl,n::RngIntElt) -> GrpPerm
 	gens := [ZL!Eltseq(u) : u in Generators(Module(ZL))];
 
 	// for phi an automorphism of L, returns whether phi also acts on the quotient ZL/P^(n+1)
-	ActsOnQuotient:=function(phi)
+	ActsOnQuotient := function(phi)
 		for b in gens do 
 			if not (phi(b) - b) in P^(n+1) then 
 				return false;
@@ -121,7 +121,7 @@ end intrinsic;
 // given two lists of the form [ <prime, trace(Frob_p)> ], compares the traces
 // where the two lists overlap, and tells you whether they match.
 TracesAreEqual := function(traces1, traces2)
-	are_equal:=true;
+	are_equal := true;
 	defined_primes_1 := [u[1] : u in traces1];
 	defined_primes_2 := [u[1] : u in traces2];
 	for p in PrimesUpTo(100) do 
@@ -137,27 +137,4 @@ TracesAreEqual := function(traces1, traces2)
 end function;
 
 
-
-
-
-
-
 // stretch goals: implement BDJ weights, and the Dirichlet character coming from the determinant
-
-
-
-
-
-
-
-
-//////////////
-
-// class field theory invariants 
-
-
-
-
-
-
-

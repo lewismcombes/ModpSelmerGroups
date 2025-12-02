@@ -51,7 +51,7 @@ end function;
 
 // returns whether rho is conjugate in GL(n,F_q) to the matrices given by act
 IsConjugateToAction := function(rho,act)
-	G:=GL(rho`dim,rho`finite_field);
+	G := GL(rho`dim,rho`finite_field);
 
 	for g in G do 
 		if [g^-1*rho(h)*g : h in rho`domain] eq act then 
@@ -78,9 +78,9 @@ IsConjugateToAction2 := function(rho,act)
 	rhoFp := [FqMatToFp(rho(g)) : g in rho`domain];
 	rhoFp_stabs := [AllStabilisingMats(GG,GG!u) : u in rhoFp];
 
-	conjs:=[];
+	conjs := [];
 	for i in [1..#rhoFp] do 
-		t,g:=IsConjugate(GG,GG!rhoFp[i],GG!act[i]);
+		t,g := IsConjugate(GG,GG!rhoFp[i],GG!act[i]);
 		if t then 
 			Append(~conjs,g);
 		end if;
@@ -89,7 +89,7 @@ IsConjugateToAction2 := function(rho,act)
 	if #conjs ne #rhoFp then 
 		return false, [];
 	else 
-		sets:=[Set([rhoFp_stabs[i][j]*conjs[i] : j in [1..#rhoFp_stabs[i]]]) : i in [1..#rhoFp]];
+		sets := [Set([rhoFp_stabs[i][j]*conjs[i] : j in [1..#rhoFp_stabs[i]]]) : i in [1..#rhoFp]];
 		return true, SetToSequence(&meet sets);
 	end if;
 end function;
@@ -189,7 +189,7 @@ end function;
 // pairs of fixed lines (which each give their own selmer group)
 AllLineCombinations := function(rho)
 	all_fixed_lines := AllFixedLines(rho`fixed_by_decomp);
-	all_combos:=[ [] ];
+	all_combos := [ [] ];
 
 	for u in all_fixed_lines do 
 		all_combos := &cat [[ w cat [v] : w in all_combos] : v in u];
