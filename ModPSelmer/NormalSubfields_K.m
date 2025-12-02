@@ -166,7 +166,7 @@ NormalSubfields_K:=function(A,Quot,K)
   */
   //print "finding Aut(L/K)...";
   
-  //g, _, mg := AutomorphismGroup(BaseField(A),K); // this is Gal(L/K)
+  //g, _, mg := AutomorphismGroup(BaseField(A),K); 
 
   LL:=NumberField(BaseField(A));
   _:=IsSubfield(K,LL);
@@ -240,11 +240,7 @@ end function;
 
 
 
-/* this just fetches the action of G(L/K) on G(M/L). It returns
-1) G(L/K) as a group of permutations
-2) the action of these permutations on G(M/L) as matrices
-3) and also as permutations
-*/
+// this just fetches the action of G(L/K) on G(M/L)
 
 GetAction:=function(F,K)
 
@@ -264,7 +260,7 @@ GetAction:=function(F,K)
      Append(~Mats,convert_K(g.i, p, mAA*A, mo));
   end for;
 
-  return <g,Mats>;
+  return Mats;
 end function;
 
 

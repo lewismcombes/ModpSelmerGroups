@@ -1,0 +1,6 @@
+
+[Options]
+LogoutPrompt=true
+SplashScreen=false
+AutoSave=false
+CurrentSession=Default

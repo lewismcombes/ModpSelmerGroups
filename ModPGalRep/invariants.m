@@ -62,7 +62,7 @@ end intrinsic;
 intrinsic SerreExponent(rho::ModPGalRep,P::RngOrdIdl) -> RngIntElt
 	{Returns the exponent of P in the Serre conductor of rho}
 
-	require P in Parent(1*MaximalOrder(rho`field_order)): "Prime ideal must be in the base field of the representation rho";
+	require P in Parent(1*rho`base_order): "Prime ideal must be in the base field of the representation rho";
 
 	// we pick a prime in the image field over P. it doens't matter which one, we only need the orders of the ramification groups, which are all conjugate 
 	PP := Factorization(Parent(1*MaximalOrder(rho`image_field))!P)[1,1];
@@ -115,6 +115,30 @@ intrinsic Conductor(rho::ModPGalRep) -> RngOrdIdl
 	{Returns the Serre conductor of the representation rho}
 	return SerreConductor(rho);
 end intrinsic;
+
+
+
+// given two lists of the form [ <prime, trace(Frob_p)> ], compares the traces
+// where the two lists overlap, and tells you whether they match.
+TracesAreEqual := function(traces1, traces2)
+	are_equal:=true;
+	defined_primes_1 := [u[1] : u in traces1];
+	defined_primes_2 := [u[1] : u in traces2];
+	for p in PrimesUpTo(100) do 
+		if p in defined_primes_1 and p in defined_primes_2 then 
+			are_equal := traces1[Index(defined_primes_1,p)] eq traces2[Index(defined_primes_2,p)];
+			if not are_equal then 
+				return false;
+			end if;
+		end if;
+	end for;
+
+	return are_equal;
+end function;
+
+
+
+
 
 
 

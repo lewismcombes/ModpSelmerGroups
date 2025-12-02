@@ -1,6 +1,6 @@
 
 
-import "SelmerUtility.m" : SelmerModulus, MaximalPExtensionHom, IsConjugateToAction;
+import "SelmerUtility.m" : SelmerModulus, MaximalPExtensionHom, IsConjugateToAction2;
 import "NormalSubfields_K.m": NormalSubfields_K, GetAction;
 
 
@@ -10,7 +10,7 @@ declare type ModPSelData;
 
 declare attributes ModPSelData:
 	base_rep, modulus, real_inf, maximal_p_extension, NSF, act, aut, normal_subfields, normal_subfields_actions, normal_subfields_domain, 
-	normal_subfields_transfer, normal_subfields_conjugators, normal_subfields_inertia_fixed;
+	normal_subfields_transfer, normal_subfields_conjugators, normal_subfields_inertia_fixed, action_on_maximal_extension;
 
 
 
@@ -45,7 +45,7 @@ intrinsic SelmerData(rho::ModPGalRep) -> ModPSelData
 	A := RayClassField(MaximalPExtensionHom(R, m, rho`char));
 
 	sel`maximal_p_extension := A;
-	NSF, act, aut, transfer := NormalSubfields_K(A, [rho`char : i in [1..rho`finite_field_degree * rho`dim]], rho`base_field);
+	NSF, act, aut, transfer, big_mats := NormalSubfields_K(A, [rho`char : i in [1..rho`finite_field_degree * rho`dim]], rho`base_field);
 
 	assert aut eq rho`domain;
 
@@ -60,12 +60,13 @@ intrinsic SelmerData(rho::ModPGalRep) -> ModPSelData
 	act_keep := [];
 	NSF_conj := [];
 	for i in [1..#NSF] do 
-		aa:=[act[i][perm[j]] : j in [1..#perm]];
-		tt, g := IsConjugateToAction(rho,aa);
+		aa := [act[i][perm[j]] : j in [1..#perm]];
+		tt, g := IsConjugateToAction2(rho,aa);
 		if tt then 
 			Append(~NSF_keep, NSF[i]);
 			Append(~act_keep, aa);
-			Append(~NSF_conj, g);
+			// it doesn't matter which of the conjugating elements we use, so just take the first one 
+			Append(~NSF_conj, g[1]);
 		end if;
 	end for;
 
@@ -75,11 +76,8 @@ intrinsic SelmerData(rho::ModPGalRep) -> ModPSelData
 	sel`normal_subfields_domain := aut;
 	sel`normal_subfields_transfer := transfer;
 	sel`normal_subfields_conjugators := NSF_conj;
+	sel`action_on_maximal_extension := GetAction(A,rho`base_field);
 
-	// FIX 
-	sel`NSF := NSF;
-	sel`act := act;
-	sel`aut := aut;
 
 	return sel;
 end intrinsic;

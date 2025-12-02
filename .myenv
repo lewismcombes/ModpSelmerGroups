@@ -1,0 +1,9 @@
+# Set PATH and other environment variables here
+# This is mostly for Bourne-shell /bin/sh and similar,
+# cannot use bash-specific syntax
+case "$PATH" in
+  *$USER/bin* ) ;;
+  * )
+    PATH=~/bin:$PATH:.
+  ;;
+esac

@@ -15,6 +15,40 @@ end intrinsic;
 
 
 
+intrinsic IsUnramifiedOnQuotient(rho::ModPGalRep) -> BoolElt 
+	{Returns whether a nearly-ordinary rho with fixed line l is unramified at p on the quotient rho/l}
+
+	require IsNearlyOrdinary(rho): "Representation must be nearly-ordinary";
+
+	if not assigned rho`inertias_over_char then 
+		rho`inertias_over_char := [ RamificationGroup(P[1],0) : P in rho`primes_over_char_image ];
+	end if;
+
+	V := RSpace(rho`finite_field,rho`dim);
+
+	is_unram := [];
+	for i in [1..#rho`primes_over_char] do 
+
+		lines_unram := [];
+
+		for u in rho`fixed_by_decomp[i] do 
+			Q,down := quo<V | u>;
+			up:=Inverse(down);
+			Append(~lines_unram,&and [down(up(Q.1) * rho(g)) eq Q.1 : g in rho`inertias_over_char[i]]);
+		end for;
+
+		Append(~is_unram,lines_unram);
+
+	end for;
+
+	rho`unramified_on_quotient := is_unram;
+	return is_unram;
+
+end intrinsic;
+
+
+
+
 
 // returns all the one-dimensional subspaces of V
 OneDimensionalSubspaces := function(V)
@@ -40,11 +74,11 @@ intrinsic IsNearlyOrdinary(rho::ModPGalRep) -> BoolElt
 		return &and rho`is_nearly_ordinary;
 	end if;
 
-	decomps:=[];
-	fixed_by_decomp:=[];
-	is_NO:=[];
+	decomps := [];
+	fixed_by_decomp := [];
+	is_NO := [];
 
-	V := RSpace(GF(rho`finite_field_order),rho`dim);
+	V := RSpace(rho`finite_field,rho`dim);
 
 	for PP in rho`primes_over_char_image do 
 
@@ -86,8 +120,8 @@ OneDimensionalSubspacesRho:=function(rho)
 	end if;
 
 	// I feel like there should be a cleverer way of getting hold of all of these.	
-	one_dim_subs:=[];
-	fixed:=rho`fixed_by_decomp;
+	one_dim_subs := [];
+	fixed := rho`fixed_by_decomp;
 	for v in fixed do 
 		S:=sub<fixed | v>;
 		if Dimension(S) eq 1 then 

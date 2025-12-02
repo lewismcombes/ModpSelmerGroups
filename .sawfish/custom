@@ -1,0 +1,6 @@
+;; sawfish user customization for new user
+;; sawfish version 1.0.1, written Mon Feb  9 14:56:00 2004
+
+(custom-set-typed-variable (quote raise-windows-on-focus) (quote t) (quote boolean) (quote sawfish.wm.ext.auto-raise))
+(custom-set-typed-variable (quote resize-outline-mode) (quote box) (quote symbol))
+(custom-set-typed-variable (quote move-outline-mode) (quote box) (quote symbol))

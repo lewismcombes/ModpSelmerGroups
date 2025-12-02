@@ -10,10 +10,10 @@
 declare type ModPGalRep;
 
 declare attributes ModPGalRep:
-	base_field, image_field, image_order, image_field_abs, image_order_abs, dim, char, discriminant, finite_field_order, 
+	base_field, base_order, image_field, image_order, image_field_abs, image_order_abs, dim, char, discriminant, finite_field, 
 	finite_field_degree, field_order, field_order_gens, frobenius_elements, domain, field_autom_rep, module_field, 
 	representation, traces, ramification, conductor, primes_over_char, primes_over_char_image, primes_over_char_abs, 
-	decomps_over_char, fixed_by_decomp, is_nearly_ordinary, possible_irreds;
+	decomps_over_char, fixed_by_decomp, is_nearly_ordinary, possible_irreds, inertias_over_char, unramified_on_quotient;
 
 
 
@@ -43,11 +43,13 @@ intrinsic ModPGaloisRepresentation(L::FldNum,q::RngIntElt,n::RngIntElt) -> ModPG
 	F := GF(q);
 	p := Characteristic(F);
 	K := BaseField(L);
+	ZK := MaximalOrder(K);
 
-	rho`finite_field_order := q;
+	rho`finite_field := F;
 	rho`finite_field_degree := Valuation(q,p);
 	rho`dim := n;
 	rho`base_field := K;
+	rho`base_order := ZK;
 	rho`image_field := L;
 	rho`module_field := F;
 	rho`char := p;
@@ -57,7 +59,7 @@ intrinsic ModPGaloisRepresentation(L::FldNum,q::RngIntElt,n::RngIntElt) -> ModPG
 	rho`field_autom_rep := m;
 
 	// we check there is at least one irreducible module before we do lengthier computations like the maximal order
-	irreds := [u : u in IrreducibleModules(rho`domain,rho`module_field) | Dimension(u) eq rho`dim];
+	irreds := [Representation(u) : u in IrreducibleModules(rho`domain,rho`module_field) | Dimension(u) eq rho`dim];
 	require #irreds ge 1: "No such module found";
 	
 	ZL := MaximalOrder(L);
@@ -69,12 +71,13 @@ intrinsic ModPGaloisRepresentation(L::FldNum,q::RngIntElt,n::RngIntElt) -> ModPG
 	L_abs := AbsoluteField(L);
 	rho`image_field_abs := L_abs;
 	ZL_abs := MaximalOrder(L_abs);
+	rho`image_order := ZL;
 	rho`image_order_abs := MaximalOrder(L_abs);
 
 	ZK := MaximalOrder(rho`base_field);
 	rho`frobenius_elements := AssociativeArray(Parent(1*ZK));
-	all_PP:= PrimesUpTo(50,K);
-	PP:=[v : v in all_PP | GCD(v,disc) eq 1*ZK];
+	all_PP := PrimesUpTo(100,K);
+	PP := [v : v in all_PP | GCD(v,disc) eq 1*ZK];
 	for P in PP do 
 		rho`frobenius_elements[P] := FrobeniusElement(L,P);
 	end for;
@@ -84,17 +87,23 @@ intrinsic ModPGaloisRepresentation(L::FldNum,q::RngIntElt,n::RngIntElt) -> ModPG
 	rho`primes_over_char_image := [ [u[1] : u in Factorization(Parent(1*ZL)!P)] : P in primes_over_char ];
 	rho`primes_over_char_abs := [[ideal<ZL_abs | [ZL_abs!u : u in Generators(v)]> : v in rho`primes_over_char_image[j]] : j in [1..#rho`primes_over_char]];
 
+	Verbose := false;
+
 	if #irreds gt 1 then 
-		print "Irreducible representation not uniquely defined.";
-		print "Traces of Frobenius and norms of prime ideals for each choice are below.";
+		if Verbose then 
+			print "Irreducible representation not uniquely defined.";
+			print "Traces of Frobenius and norms of prime ideals for each choice are below.";
+		end if;
 		for u in irreds do 
-			repp := Representation(u);
-			print [<Norm(v), Trace(repp(rho`frobenius_elements[v]))> : v in PP | GCD(v,disc) eq 1*ZK];
-			print "";
+			repp := u;
+			if Verbose then 
+				print [<Norm(v), Trace(repp(rho`frobenius_elements[v]))> : v in PP | GCD(v,disc) eq 1*ZK];
+				print "";
+			end if;
 		end for;
 		rho`possible_irreds := irreds;
 	else 
-		rho`representation := Representation(irreds[1]);
+		rho`representation := irreds[1];
 		rho`traces := [Trace((rho`representation)(g)) : g in A];
 	end if;
 
@@ -119,11 +128,13 @@ intrinsic ChangeRepresentation(rho::ModPGalRep,i::RngIntElt)
 
 	require i in [1..#rho`possible_irreds]: "Index should be in the range 1 to " cat Sprint(rho`possible_irreds);
 
-	rho`representation := Representation(rho`possible_irreds);
+	rho`representation := rho`possible_irreds[i];
 	rho`traces := [Trace((rho`representation)(g)) : g in rho`domain];
 
 	delete rho`is_nearly_ordinary;
 	delete rho`fixed_by_decomp;
+	delete rho`unramified_on_quotient;
+	delete rho`conductor;
 
 end intrinsic;
 
